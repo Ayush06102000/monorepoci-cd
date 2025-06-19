@@ -23,8 +23,8 @@ jobs:
         run: |
             ssh -o StrictHostKeyChecking=no -i ssh_key ubuntu@ec2-13-203-218-72.ap-south-1.compute.amazonaws.com << 'EOF'
             export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # Load nvm
-            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use --lts > /dev/null
 
             cd monorepoci-cd/
             git pull
@@ -34,3 +34,4 @@ jobs:
             pm2 restart web-server || pm2 start dist/web.js --name web-server
             pm2 restart ws-server || pm2 start dist/ws.js --name ws-server
             EOF
+
