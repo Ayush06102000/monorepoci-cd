@@ -16,6 +16,7 @@ jobs:
       - name: Set up SSH
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ssh_key
+          mkdir .ssh
           echo "${{secrets.KNOWN_HOSTS}}" &> ~/.ssh/known_hosts
           chmod 600 ssh_key
 
