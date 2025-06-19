@@ -17,7 +17,7 @@ jobs:
 
       - name: Connect via SSH and deploy
         run: |
-          ssh -i "$HOME/ssh_key" -o StrictHostKeyChecking=no ubuntu@3.88.216.8 << 'EOF'
+          ssh -i "$HOME/ssh_key" -o StrictHostKeyChecking=no ubuntu@43.204.233.219 << 'EOF'
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             export PATH="$NVM_DIR/versions/node/v22.13.1/bin:$PATH"
