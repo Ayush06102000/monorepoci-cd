@@ -1,4 +1,5 @@
 name: Deploy to staging
+
 on:
   push:
     branches: [ main ]
@@ -9,23 +10,25 @@ jobs:
     name: Deploying everything to the staging cluster
 
     steps:
-      - name: Set up SSH key and known_hosts
+      - name: Set up SSH key
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/ssh_key"
           chmod 600 "$HOME/ssh_key"
-          mkdir -p "$HOME/.ssh"
-          echo "${{ secrets.KNOWN_HOSTS }}" > "$HOME/.ssh/known_hosts"
 
-      - name: Deploy over SSH
+      - name: Connect via SSH and deploy
         run: |
           ssh -i "$HOME/ssh_key" -o StrictHostKeyChecking=no ubuntu@3.88.216.8 << 'EOF'
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            export PATH="$NVM_DIR/versions/node/v22.13.1/bin:$PATH"
+
             cd monorepoci-cd/
             git pull origin main
-            export PATH=/root/.nvm/versions/node/v22.13.1/bin:$PATH
-            npm install -g pnpm
+
             pnpm install
             pnpm run build
-            pm2 restart fe-server
-            pm2 restart http-server
-            pm2 restart ws-server
+
+            pm2 restart fe-sever
+            pm2 restart http-sever
+            pm2 restart ws-sever
           EOF
