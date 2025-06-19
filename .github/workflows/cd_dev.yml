@@ -22,8 +22,9 @@ jobs:
       - name: SSH and Deploy
         run: |
           ssh -o StrictHostKeyChecking=no -i ssh_key ubuntu@ec2-13-203-218-72.ap-south-1.compute.amazonaws.com << 'EOF'
-            source ~/.bashrc
             cd monorepoci-cd/
+            npm install -g pnpm
+            npm install -g pm2
             git pull
             pnpm install
             pnpm run build
