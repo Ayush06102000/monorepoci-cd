@@ -1,21 +1,32 @@
 name: Deploy to staging
+
 on:
-    push:
-        branches: 
-            -"main"
+  push:
+    branches:
+      - "main"
 
 jobs:
-    redeploy_everything:
-        name: Deploying everything to the staging cluster
-        
-        steps:
-            - name: SSH Into server
-            - run: |
-                echo ${{ secrets.SSH_PRIVATE_KEY }} &> ~/ssh_key
-                ssh -i ~/ssh_key ubuntu@ec2-13-203-218-72.ap-south-1.compute.amazonaws.com
-                cd monorepoci-cd/ && git pull
-                pnpm install
-                pnpm run build
-                pm2 restart http-server
-                pm2 restart web-server
-                pm2 restart ws-server 
+  redeploy_everything:
+    name: Deploying everything to the staging cluster
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (required for GitHub context)
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
+          chmod 600 ssh_key
+
+      - name: SSH and Deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ssh_key ubuntu@ec2-13-203-218-72.ap-south-1.compute.amazonaws.com << 'EOF'
+            cd monorepoci-cd/
+            git pull
+            pnpm install
+            pnpm run build
+            pm2 restart http-server || pm2 start dist/index.js --name http-server
+            pm2 restart web-server || pm2 start dist/web.js --name web-server
+            pm2 restart ws-server || pm2 start dist/ws.js --name ws-server
+          EOF
