@@ -2,8 +2,7 @@ name: Deploy to staging
 
 on:
   push:
-    branches:
-      - "main"
+    branches: [ main ]
 
 jobs:
   redeploy_everything:
@@ -21,17 +20,12 @@ jobs:
 
       - name: SSH and Deploy
         run: |
-            ssh -o StrictHostKeyChecking=no -i ssh_key ubuntu@ec2-13-203-218-72.ap-south-1.compute.amazonaws.com << 'EOF'
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm use --lts > /dev/null
-
-            cd monorepoci-cd/
-            git pull
+            echo "${{secrets.SSH_PRIVATE_KEY}} &> ~/ssh_key"
+            ssh -i ~/ssh_key ubuntu@3.88.216.8
+            cd monorepoci-cd/ && git pull
             pnpm install
             pnpm run build
-            pm2 restart http-server || pm2 start dist/index.js --name http-server
-            pm2 restart web-server || pm2 start dist/web.js --name web-server
-            pm2 restart ws-server || pm2 start dist/ws.js --name ws-server
-            EOF
+            pm2 restart http-server
+            pm2 restart ws-server
+            pm2 restart web-server
 
